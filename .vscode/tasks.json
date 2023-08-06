@@ -2,19 +2,17 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: g++.exe 生成活动文件",
-            "command": "D:\\Program Files\\MinGW\\bin\\g++.exe",
+            "label": "C/C++: g++ 生成活动文件",
+            "command": "/bin/g++",
             "args": [
-                "-fdiagnostics-color=always",
                 "-g",
                 "${workspaceFolder}/main.cpp",
                 "${workspaceFolder}/src/Logger/*.cpp",
-                "-lwsock32",
                 "-I",
                 "${workspaceFolder}/include/",
                 "-o",
-                "${workspaceFolder}/bin/main.exe"
-                // "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${workspaceFolder}/bin/main"
+                // "${fileDirname}\\${fileBasenameNoExtension}"
             ],
             "options": {
                 "cwd": "${fileDirname}"
