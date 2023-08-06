@@ -7,6 +7,12 @@
 #include <ctime>
 #include <queue>
 #include <mutex>
+#include <thread>
+#ifdef _WIN32
+    #define "windows.h"
+#else
+    #include "unistd.h"
+#endif
 
 using std::cout;
 using std::endl;
@@ -14,6 +20,7 @@ using std::string;
 using std::ios;
 using std::mutex;
 using std::ofstream;
+using std::to_string;
 
 // 设置默认log文件存储位置
 // #define DEFAULT_FILEPATH "C:/Users/liwan/Desktop/tool/log/default.log"
@@ -51,6 +58,7 @@ private:
     static LogLevel logLevel;
     static string logLevels[4];
     static LogTarget logTarget;
+    static int len;
 public:
     // 禁用拷贝构造和= 
     Logger (const Logger&) = delete;
