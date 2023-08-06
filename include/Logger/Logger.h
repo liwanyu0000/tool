@@ -20,13 +20,20 @@ using std::ofstream;
 #define DEFAULT_FILEPATH "./log/default.log"
 
 // 日志水平
-enum LogLevel{LOG_LOVEL_INFO, LOG_LOVEL_DEBUG, LOG_LOVEL_WARNING, LOG_LOVEL_ERROR};
+enum LogLevel
+{
+    LOG_LOVEL_INFO, 
+    LOG_LOVEL_DEBUG, 
+    LOG_LOVEL_WARNING, 
+    LOG_LOVEL_ERROR
+};
 // 日志写入方式
 enum LogTarget
 {
-    LOG_TARGET_TERMINAL             = 0x00, 
-    LOG_TARGET_FILE                 = 0x01, 
-    LOG_TARGET_FILE_AND_TERMINAL    = 0x10
+    LOG_TARGET_FILE_AND_TERMINAL    = 0b00,
+    LOG_TARGET_TERMINAL             = 0b01, 
+    LOG_TARGET_FILE                 = 0b10
+    
 };
 
 class Logger
@@ -49,17 +56,24 @@ public:
     Logger (const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
     // 设置logLevel与logTarget
-    void setLogger(LogLevel, LogTarget);
-    void setLogger(LogLevel, LogTarget, string);
+    void setLogger(LogLevel, LogTarget, string filename = DEFAULT_FILEPATH);
     // 获取唯一的一个实例对象
     static Logger& getInstance();
     // 写log
-    static int writeLog(LogLevel, unsigned char* fileName, unsigned char* function, int lineNumber, char* format, ...);
+    int writeLog(LogLevel, const char* fileName, int lineNumber, string format, ...);
     // 输出log
-    static int outToTarget();
-    
+    int outToTarget();
+    // 关闭日志系统
+    void closeLogger();
 };
 
-
+#define LOGSTART Logger::getInstance();
+#define LOGSET(LOGLEVEL, LOGTARGET) Logger::getInstance().setLogger(LOGLEVEL, LOGTARGET);
+#define LOGSETF(LOGLEVEL, LOGTARGET, FILENAME) Logger::getInstance().setLogger(LOGLEVEL, LOGTARGET, FILENAME);
+#define INFOLOG(FORMAT, ...) Logger::getInstance().writeLog(LOG_LOVEL_INFO, __FILE__, __LINE__, FORMAT);
+#define DEBUGLOG(FORMAT, ...) Logger::getInstance().writeLog(LOG_LOVEL_DEBUG, __FILE__, __LINE__, FORMAT);
+#define WARNINGLOG(FORMAT, ...) Logger::getInstance().writeLog(LOG_LOVEL_WARNING, __FILE__, __LINE__, FORMAT);
+#define ERRORLOG(FORMAT, ...) Logger::getInstance().writeLog(LOG_LOVEL_ERROR, __FILE__, __LINE__, FORMAT);
+#define LOGEND Logger::getInstance().closeLogger();
 
 #endif

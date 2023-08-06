@@ -13,12 +13,24 @@ Logger::Logger()
 {
     this->logLevel = LOG_LOVEL_INFO;
     this->logTarget = LOG_TARGET_TERMINAL;
-    cout << "start logger" << endl;
+    this->logBuffer += __TIMESTAMP__;
+    this->logBuffer += " start logger\n";
 }
 
 Logger::~Logger()
 {
+    
+    this->logBuffer += __TIMESTAMP__;
+    this->logBuffer += " end logger\n";
+    this->outToTarget();
     this->outLogFile.close();
+}
+
+void Logger::closeLogger()
+{
+    delete logger;
+    logger = nullptr;
+
 }
 
 Logger& Logger::getInstance()
@@ -33,33 +45,43 @@ Logger& Logger::getInstance()
     return *logger;
 }
 
-void Logger::setLogger(LogLevel level, LogTarget target)
+void Logger::setLogger(LogLevel level, LogTarget target, const string filename)
 {
     this->logLevel = level;
     this->logTarget = target;
-    if (logTarget == LOG_TARGET_FILE || logTarget == LOG_TARGET_FILE_AND_TERMINAL)
-        this->outLogFile = ofstream(DEFAULT_FILEPATH, ios::app);
-
-
-}
-void Logger::setLogger(LogLevel level, LogTarget target, string filename)
-{
-    this->logLevel = level;
-    this->logTarget = target;
-    this->outLogFile = ofstream(filename, ios::app);
+    if (this->outLogFile.is_open())
+        this->outLogFile.close();
+    if ((logTarget | LOG_TARGET_FILE) == 2)
+        this->outLogFile = ofstream(filename, ios::app);
 }
 
 // 写log
-int Logger::writeLog(LogLevel level, unsigned char* fileName, unsigned char* function, int lineNumber, char* format, ...)
+int Logger::writeLog(LogLevel level, const char* fileName, int lineNumber, string format, ...)
 {
+    if (level >= logLevel)
+    {
+        std::unique_lock<mutex>(logMutex);
+        logBuffer += __TIMESTAMP__;
+        logBuffer += " ";
+        logBuffer += ("[" + logLevels[level] + "] ");
+        logBuffer += fileName;
+        logBuffer += " ";
+        logBuffer += std::to_string(lineNumber);
+        logBuffer += " ";
+        logBuffer += format;
+        logBuffer += "\n";
+    }
+    outToTarget();
     return 0;
 }
     // 输出log
 int Logger::outToTarget()
 {
-    if (logTarget == LOG_TARGET_TERMINAL || logTarget == LOG_TARGET_FILE_AND_TERMINAL)
-        cout << "LOG" << endl;
-    if (logTarget == LOG_TARGET_FILE || logTarget == LOG_TARGET_FILE_AND_TERMINAL)
-        outLogFile << "LOG" << endl;
+    std::unique_lock<mutex>(logMutex);
+    if ((logTarget | LOG_TARGET_TERMINAL) == 1)
+        cout << logBuffer;
+    if ((logTarget | LOG_TARGET_FILE) == 2)
+        outLogFile << logBuffer;
+    logBuffer.clear();
     return 0;
 }
