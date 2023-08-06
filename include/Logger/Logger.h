@@ -9,9 +9,9 @@
 #include <mutex>
 #include <thread>
 #ifdef _WIN32
-    #define "windows.h"
+    #include <windows.h>
 #else
-    #include "unistd.h"
+    #include <unistd.h>
 #endif
 
 using std::cout;
