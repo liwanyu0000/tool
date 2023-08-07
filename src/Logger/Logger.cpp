@@ -7,14 +7,13 @@ string Logger::logLevels[4] = {"INFO", "DEBUG", "WARNING", "ERROR"};
 mutex Logger::logMutex;
 LogLevel Logger::logLevel;
 LogTarget* Logger::logTarget = nullptr;
-int Logger::len = 10000;
 
 Logger::Logger()
 {
     this->logLevel = LOG_LOVEL_INFO;
     this->logTarget = new LogFileTarget;
     this->logBuffer += __TIMESTAMP__;
-    this->logBuffer += "[Welcome] start logger";
+    this->logBuffer += "[Welcome] start logger\n";
 }
 
 Logger::~Logger()
@@ -27,7 +26,7 @@ void Logger::closeLogger()
     {
         std::unique_lock<mutex> il(logMutex);
         this->logBuffer += __TIMESTAMP__;
-        this->logBuffer += "[Bye] end logger";
+        this->logBuffer += "[Bye] end logger\n";
     }
     this->outToTarget();
     std::unique_lock<mutex> il(logMutex);
@@ -86,7 +85,6 @@ int Logger::writeLog(LogLevel level, const char* fileName, int lineNumber, strin
         logInfo += "] ";
         logInfo += format;
         logInfo += "\n";
-        len--;
         while (logBuffer.getUnused() <= logInfo.size())
             outToTarget();
         std::unique_lock<mutex> il(logMutex);

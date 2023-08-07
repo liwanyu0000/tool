@@ -47,7 +47,6 @@ private:
     static LogLevel logLevel;
     static string logLevels[4];
     static LogTarget* logTarget;
-    static int len;
 public:
     // 禁用拷贝构造和= 
     Logger (const Logger&) = delete;

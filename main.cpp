@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 {
     clock_t start, end;
     start = clock();
-    LOGSTART
+    // LOGSTART
     for (int i = 0; i < 1000; i++)
     {
         thread th1(test, 1);
