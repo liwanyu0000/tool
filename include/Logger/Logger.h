@@ -8,6 +8,7 @@
 #include <queue>
 #include <mutex>
 #include <thread>
+#include <Logger/LogCache.h>
 #ifdef _WIN32
     #include <windows.h>
 #else
@@ -52,9 +53,10 @@ private:
     // 互斥量
     static mutex logMutex;
     // 存储log的buffer
-    static string logBuffer;
+    static LogCache logBuffer;
     // 保存日志文件的fstream
     static ofstream outLogFile;
+    
     static LogLevel logLevel;
     static string logLevels[4];
     static LogTarget logTarget;

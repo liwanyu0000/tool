@@ -2,7 +2,7 @@
 
 
 Logger* Logger::logger      = nullptr;
-string Logger::logBuffer    = "";
+LogCache Logger::logBuffer;
 string Logger::logLevels[4] = {"INFO", "DEBUG", "WARNING", "ERROR"};
 mutex Logger::logMutex;
 ofstream Logger::outLogFile;
@@ -65,38 +65,38 @@ int Logger::writeLog(LogLevel level, const char* fileName, int lineNumber, strin
 {
     if (level >= logLevel)
     {
-        std::unique_lock<mutex> il(logMutex);
-        logBuffer += "[datetime: ";
-        logBuffer += __TIMESTAMP__;
-        logBuffer += "] ";
-        logBuffer += ("[" + logLevels[level] + "] ");
-        logBuffer += "[pid: ";
+        string logInfo = "";
+        logInfo += "[datetime: ";
+        logInfo += __TIMESTAMP__;
+        logInfo += "] ";
+        logInfo += ("[" + logLevels[level] + "] ");
+        logInfo += "[pid: ";
         # ifdef _WIN32
-            logBuffer += to_string(GetCurrentProcessId());
+            logInfo += to_string(GetCurrentProcessId());
         #else
-            logBuffer += to_string(getpid());
+            logInfo += to_string(getpid());
         #endif
-        logBuffer += "] ";
-        logBuffer += "[tid: ";
+        logInfo += "] ";
+        logInfo += "[tid: ";
         # ifdef _WIN32
-            logBuffer += to_string(GetCurrentThreadId());
+            logInfo += to_string(GetCurrentThreadId());
         #else
-            logBuffer += to_string(gettid());
+            logInfo += to_string(gettid());
         #endif
-        logBuffer += "] ";
-        logBuffer += "[file: ";
-        logBuffer += fileName;
-        logBuffer += " ";
-        logBuffer += to_string(lineNumber);
-        logBuffer += "] ";
-        logBuffer += format;
-        logBuffer += "\n";
+        logInfo += "] ";
+        logInfo += "[file: ";
+        logInfo += fileName;
+        logInfo += " ";
+        logInfo += to_string(lineNumber);
+        logInfo += "] ";
+        logInfo += format;
+        logInfo += "\n";
         len--;
-    }
-    if (len <= 0)
-    {
-        outToTarget();
-        len = 10000;
+        while (logBuffer.getUnused() <= logInfo.size())
+            outToTarget();
+        std::unique_lock<mutex> il(logMutex);
+        logBuffer += logInfo.c_str();
+
     }
     
     return 0;
@@ -106,9 +106,9 @@ int Logger::outToTarget()
 {
     std::unique_lock<mutex> il(logMutex);
     if ((logTarget | LOG_TARGET_TERMINAL) == 1)
-        cout << logBuffer;
+        cout << logBuffer.out();
     if ((logTarget | LOG_TARGET_FILE) == 2)
-        outLogFile << logBuffer;
+        outLogFile << logBuffer.out();
     logBuffer.clear();
     return 0;
 }

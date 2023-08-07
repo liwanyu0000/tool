@@ -1,21 +1,24 @@
 #include <Logger/Logger.h>
+#include <ctime>
 
 using namespace std;
 
 void test(int i)
 {
     INFOLOG("info thread " + to_string(i))
-    std::this_thread::sleep_for(2ms);
+    // std::this_thread::sleep_for(2ms);
     DEBUGLOG("debug thread " + to_string(i))
-    std::this_thread::sleep_for(2ms);
+    // std::this_thread::sleep_for(2ms);
     WARNINGLOG("warning thread " + to_string(i))
-    std::this_thread::sleep_for(2ms);
+    // std::this_thread::sleep_for(2ms);
     ERRORLOG("error thread " + to_string(i))
-    std::this_thread::sleep_for(2ms);
+    // std::this_thread::sleep_for(2ms);
 }
 
 int main(int argc, char *argv[])
 {
+    clock_t start, end;
+    start = clock();
     for (int i = 0; i < 1000; i++)
     {
         thread th1(test, 1);
@@ -42,5 +45,7 @@ int main(int argc, char *argv[])
         if (th9.joinable()) th9.join();
     }
     LOGEND
+    end = clock();
+    cout << "time: " << double(end -start) / CLOCKS_PER_SEC << "s" << endl;
     return 0;
 }
