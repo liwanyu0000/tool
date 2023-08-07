@@ -5,14 +5,25 @@ using std::vector;
 
 
 // 定义单位
-constexpr size_t operator ""_mb(size_t num)
+// #ifdef _WIN32
+constexpr size_t operator ""_mb(unsigned long long num)
 {
     return num * 1024 * 1024;
 }
-constexpr size_t operator ""_kb(size_t num)
+constexpr size_t operator ""_kb(unsigned long long num)
 {
     return num * 1024;
 }
+// #else
+//     size_t operator ""_mb(unsigned long long num)
+//     {
+//         return num * 1024 * 1024;
+//     }
+//     size_t operator ""_kb(unsigned long long num)
+//     {
+//         return num * 1024;
+//     }
+// #endif
 
 class LogCache
 {
