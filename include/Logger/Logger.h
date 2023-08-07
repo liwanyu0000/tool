@@ -9,6 +9,7 @@
 #include <mutex>
 #include <thread>
 #include <Logger/LogCache.h>
+#include <Logger/LogTarget.h>
 #ifdef _WIN32
     #include <windows.h>
 #else
@@ -23,10 +24,6 @@ using std::mutex;
 using std::ofstream;
 using std::to_string;
 
-// 设置默认log文件存储位置
-// #define DEFAULT_FILEPATH "C:/Users/liwan/Desktop/tool/log/default.log"
-#define DEFAULT_FILEPATH "./log/default.log"
-
 // 日志水平
 enum LogLevel
 {
@@ -34,14 +31,6 @@ enum LogLevel
     LOG_LOVEL_DEBUG, 
     LOG_LOVEL_WARNING, 
     LOG_LOVEL_ERROR
-};
-// 日志写入方式
-enum LogTarget
-{
-    LOG_TARGET_FILE_AND_TERMINAL    = 0b00,
-    LOG_TARGET_TERMINAL             = 0b01, 
-    LOG_TARGET_FILE                 = 0b10
-    
 };
 
 class Logger
@@ -54,19 +43,17 @@ private:
     static mutex logMutex;
     // 存储log的buffer
     static LogCache logBuffer;
-    // 保存日志文件的fstream
-    static ofstream outLogFile;
     
     static LogLevel logLevel;
     static string logLevels[4];
-    static LogTarget logTarget;
+    static LogTarget* logTarget;
     static int len;
 public:
     // 禁用拷贝构造和= 
     Logger (const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
     // 设置logLevel与logTarget
-    void setLogger(LogLevel, LogTarget, string filename = DEFAULT_FILEPATH);
+    void setLogger(LogLevel, LogTarget*);
     // 获取唯一的一个实例对象
     static Logger& getInstance();
     // 写log
@@ -78,8 +65,8 @@ public:
 };
 
 #define LOGSTART Logger::getInstance();
-#define LOGSET(LOGLEVEL, LOGTARGET) Logger::getInstance().setLogger(LOGLEVEL, LOGTARGET);
-#define LOGSETF(LOGLEVEL, LOGTARGET, FILENAME) Logger::getInstance().setLogger(LOGLEVEL, LOGTARGET, FILENAME);
+#define LOGSET(LOGLEVEL, LOGTARGET) Logger::getInstance().setLogger(LOGLEVEL, new LOGTARGET);
+#define LOGSETF(LOGLEVEL, LOGTARGET, FILENAME) Logger::getInstance().setLogger(LOGLEVEL, new LOGTARGET(FILENAME));
 #define INFOLOG(FORMAT, ...) Logger::getInstance().writeLog(LOG_LOVEL_INFO, __FILE__, __LINE__, FORMAT);
 #define DEBUGLOG(FORMAT, ...) Logger::getInstance().writeLog(LOG_LOVEL_DEBUG, __FILE__, __LINE__, FORMAT);
 #define WARNINGLOG(FORMAT, ...) Logger::getInstance().writeLog(LOG_LOVEL_WARNING, __FILE__, __LINE__, FORMAT);

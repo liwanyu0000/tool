@@ -12,6 +12,10 @@ constexpr size_t operator ""_kb(unsigned long long num)
 {
     return num * 1024;
 }
+constexpr size_t operator ""_b(unsigned long long num)
+{
+    return num;
+}
 
 class LogCache
 {

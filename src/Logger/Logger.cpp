@@ -5,23 +5,21 @@ Logger* Logger::logger      = nullptr;
 LogCache Logger::logBuffer;
 string Logger::logLevels[4] = {"INFO", "DEBUG", "WARNING", "ERROR"};
 mutex Logger::logMutex;
-ofstream Logger::outLogFile;
 LogLevel Logger::logLevel;
-LogTarget Logger::logTarget;
+LogTarget* Logger::logTarget = nullptr;
 int Logger::len = 10000;
 
 Logger::Logger()
 {
     this->logLevel = LOG_LOVEL_INFO;
-    this->logTarget = LOG_TARGET_FILE;
-    this->outLogFile = ofstream(DEFAULT_FILEPATH, ios::app);
+    this->logTarget = new LogFileTarget;
     this->logBuffer += __TIMESTAMP__;
     this->logBuffer += " start logger\n";
 }
 
 Logger::~Logger()
 {
-    this->outLogFile.close();
+ 
 }
 
 void Logger::closeLogger()
@@ -48,16 +46,13 @@ Logger& Logger::getInstance()
     return *logger;
 }
 
-void Logger::setLogger(LogLevel level, LogTarget target, const string filename)
+void Logger::setLogger(LogLevel level, LogTarget* target)
 {
     this->outToTarget();
     std::unique_lock<mutex> il(logMutex);
+    delete this->logTarget;
     this->logLevel = level;
     this->logTarget = target;
-    if (this->outLogFile.is_open())
-        this->outLogFile.close();
-    if ((logTarget | LOG_TARGET_FILE) == 2)
-        this->outLogFile = ofstream(filename, ios::app);
 }
 
 // 写log
@@ -105,10 +100,7 @@ int Logger::writeLog(LogLevel level, const char* fileName, int lineNumber, strin
 int Logger::outToTarget()
 {
     std::unique_lock<mutex> il(logMutex);
-    if ((logTarget | LOG_TARGET_TERMINAL) == 1)
-        cout << logBuffer.out();
-    if ((logTarget | LOG_TARGET_FILE) == 2)
-        outLogFile << logBuffer.out();
+    (*this->logTarget)(this->logBuffer.out());
     logBuffer.clear();
     return 0;
 }
