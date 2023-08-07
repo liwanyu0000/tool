@@ -25,12 +25,12 @@ LogFileTarget::~LogFileTarget()
 
 void LogFileTarget::operator()(const char * buf)
 {
-    this->out << buf;
+    this->out << buf << std::endl;
 }
 
 void LogTerminalTarget::operator()(const char * buf)
 {
-    std::cout << buf;
+    std::cout << buf << std::endl;
 }
 
 LogFileAndTerminalTarget::LogFileAndTerminalTarget(std::string filePath)
@@ -46,6 +46,6 @@ LogFileAndTerminalTarget::~LogFileAndTerminalTarget()
 
 void LogFileAndTerminalTarget::operator()(const char * buf)
 {
-    this->out << buf;
-    std::cout << buf;
+    this->out << buf << std::endl;
+    std::cout << buf << std::endl;
 }

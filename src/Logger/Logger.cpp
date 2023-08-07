@@ -14,7 +14,7 @@ Logger::Logger()
     this->logLevel = LOG_LOVEL_INFO;
     this->logTarget = new LogFileTarget;
     this->logBuffer += __TIMESTAMP__;
-    this->logBuffer += " start logger\n";
+    this->logBuffer += "[Welcome] start logger";
 }
 
 Logger::~Logger()
@@ -27,7 +27,7 @@ void Logger::closeLogger()
     {
         std::unique_lock<mutex> il(logMutex);
         this->logBuffer += __TIMESTAMP__;
-        this->logBuffer += " end logger\n";
+        this->logBuffer += "[Bye] end logger";
     }
     this->outToTarget();
     std::unique_lock<mutex> il(logMutex);

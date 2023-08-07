@@ -36,6 +36,8 @@ size_t LogCache::getUnused()
 
 const char* LogCache::out() const
 {
+    if (this->buffer[this->usedByte - 1] == '\n')
+        this->buffer[this->usedByte - 1] = 0;
     return this->buffer;
 }
 
